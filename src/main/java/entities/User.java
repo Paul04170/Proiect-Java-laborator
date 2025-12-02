@@ -22,14 +22,6 @@ public class User {
     @Column(name = "username")
     private String username;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @OneToMany(mappedBy = "owner", orphanRemoval = true)
     private List<Car> cars = new ArrayList<>();
 
@@ -39,6 +31,14 @@ public class User {
 
     public void setCars(List<Car> cars) {
         this.cars = cars;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
@@ -63,6 +63,11 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+
+        return username;
     }
 
 }
