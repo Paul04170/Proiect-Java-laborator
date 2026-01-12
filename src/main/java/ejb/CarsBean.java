@@ -5,11 +5,13 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import common.CarDto;
+import common.CarPhotoDto;
 import entities.Car;
+import common.CarDto;
+import entities.CarPhoto;
 import entities.User;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,47 +21,50 @@ public class CarsBean {
     private static final Logger LOG = Logger.getLogger(CarsBean.class.getName());
 
     @PersistenceContext
-    private EntityManager entityManager;
+    EntityManager entityManager;
 
-    public List<CarDto> findAllCars() {
-        LOG.info("findAllCars");
+    public List<CarDto> findAllCars(){
+        LOG.info("Finding all cars");
         try {
-            TypedQuery<Car> typedQuery = entityManager.createQuery("SELECT c FROM Car c", Car.class);
+            TypedQuery<Car>typedQuery = entityManager.createQuery("SELECT c FROM Car c", Car.class);
             List<Car> cars = typedQuery.getResultList();
             return copyCarsToDto(cars);
-        } catch (Exception ex) {
+        }catch (Exception ex){
             throw new EJBException(ex);
         }
     }
 
     private List<CarDto> copyCarsToDto(List<Car> cars) {
-        List<CarDto> carDtos = new ArrayList<>();
-        for (Car car : cars) {
-            CarDto carDto = new CarDto(
-                    car.getId(),
-                    car.getLicensePlate(),
-                    car.getParkingSpot(),
-                    car.getOwner().getUsername()
-            );
-            carDtos.add(carDto);
-        }
-        return carDtos;
-    }
+        return cars.stream()
+                .map(car -> new CarDto(
+                        car.getId(),
+                        car.getLicensePlate(),
+                        car.getParkingSpot(),
+                        car.getOwner().getUsername()
 
-    public void createCar(String licensePlate, String parkingSpot, Long userId) {
+                ))
+                .toList();
+    }
+    public void createCar(String licensePlate,String parkingSpot,Long useId){
         LOG.info("createCar");
+
         Car car = new Car();
         car.setLicensePlate(licensePlate);
         car.setParkingSpot(parkingSpot);
-        User user = entityManager.find(User.class, userId);
-        user.getCars().add(car);
+
+        User user= entityManager.find(User.class, useId);
         car.setOwner(user);
+        user.getCars().add(car);
+
         entityManager.persist(car);
     }
 
-    public CarDto findById(Long carId) {
-        LOG.info("findById");
-        Car car = entityManager.find(Car.class, carId);
+    public CarDto findById(Long cardId) {
+        LOG.info("findById: "+cardId);
+        Car car= entityManager.find(Car.class, cardId);
+        if(car==null){
+            return null;
+        }
         return new CarDto(
                 car.getId(),
                 car.getLicensePlate(),
@@ -70,33 +75,52 @@ public class CarsBean {
 
     public void updateCar(Long carId, String licensePlate, String parkingSpot, Long userId) {
         LOG.info("updateCar");
-        Car car = entityManager.find(Car.class, carId);
+
+        Car car= entityManager.find(Car.class, carId);
         car.setLicensePlate(licensePlate);
         car.setParkingSpot(parkingSpot);
-        User newOwner = entityManager.find(User.class, userId);
-        User oldOwner = car.getOwner();
-        if (oldOwner != null) {
-            oldOwner.getCars().remove(car);
-        }
-        newOwner.getCars().add(car);
-        car.setOwner(newOwner);
+        //remove from old user
+        User oldUSer=car.getOwner();
+        oldUSer.getCars().remove(car);
+
+        //set new user
+        User user= entityManager.find(User.class, userId);
+        car.setOwner(user);
+        user.getCars().add(car);
     }
 
-    // METODĂ NOUĂ
-    public void deleteCarsByIds(List<Long> carIds) {
+    public void deleteCarsByIds(Collection<Long> carIds) {
         LOG.info("deleteCarsByIds");
-
-        for (Long carId : carIds) {
-            Car car = entityManager.find(Car.class, carId);
-
-            // Șterge mașina din lista proprietarului
-            User owner = car.getOwner();
-            if (owner != null) {
-                owner.getCars().remove(car);
-            }
-
-            // Șterge mașina din baza de date
+        for(Long carId:carIds){
+            Car car= entityManager.find(Car.class, carId);
             entityManager.remove(car);
         }
     }
+    public void addPhotoToCar(Long carId, String filename, String fileType, byte[] fileContent) {
+        LOG.info("addPhotoToCar");
+        CarPhoto photo = new CarPhoto();
+        photo.setFilename(filename);
+        photo.setFileType(fileType);
+        photo.setFileContent(fileContent);
+        Car car = entityManager.find(Car.class, carId);
+        if (car.getPhoto() != null) {
+            entityManager.remove(car.getPhoto());
+        }
+        car.setPhoto(photo);
+        photo.setCar(car);
+        entityManager.persist(photo);
+    }
+    public CarPhotoDto findPhotoByCarId(Integer carId) {
+        List<CarPhoto> photos = entityManager
+                .createQuery("SELECT p FROM CarPhoto p where p.car.id = :id", CarPhoto.class)
+                .setParameter("id", carId)
+                .getResultList();
+        if (photos.isEmpty()) {
+            return null;
+        }
+        CarPhoto photo = photos.get(0); // the first element
+        return new CarPhotoDto(photo.getId(), photo.getFilename(), photo.getFileType(),
+                photo.getFileContent());
+    }
+
 }

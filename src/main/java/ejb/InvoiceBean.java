@@ -17,7 +17,8 @@ public class InvoiceBean implements Serializable {
         return userIds;
     }
 
-    public void addUserId(Set<Long> userIds) {
+    public void addUserId(Set<Long> userIds)
+    {
         this.userIds=userIds;
     }
 }

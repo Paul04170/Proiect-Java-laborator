@@ -16,8 +16,8 @@ public class Car {
     @Column(name = "license_plate")
     private String licensePlate;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     public User getOwner() {
@@ -51,5 +51,19 @@ public class Car {
     public void setId(Long id) {
         this.id = id;
     }
+
+    private CarPhoto photo;
+
+    @OneToOne(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public CarPhoto getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(CarPhoto photo) {
+        this.photo = photo;
+    }
+
+
+
 
 }
