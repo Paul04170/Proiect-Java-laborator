@@ -1,5 +1,5 @@
 
-package servlets;
+package servlets.users;
 
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.inject.Inject;

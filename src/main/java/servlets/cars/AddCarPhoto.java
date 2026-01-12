@@ -1,4 +1,4 @@
-package servlets;
+package servlets.cars;
 
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
