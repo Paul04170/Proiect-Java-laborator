@@ -1,56 +1,49 @@
 package ejb;
 
-import common.UserDto;
-import entities.User;
-import entities.UserGroup;
-import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import entities.User;
+import common.UserDto;
+import entities.UserGroup;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Stateless
-public class UsersBean {
 
+
+@Stateless
+
+public class UsersBean {
     private static final Logger LOG = Logger.getLogger(UsersBean.class.getName());
 
+    @Inject
+    PasswordBean passwordBean;
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Inject
-    private PasswordBean passwordBean;
-
     public List<UserDto> findAllUsers() {
-        LOG.info("findAllUsers");
-
+        LOG.info("Finding all users");
         try {
-            TypedQuery<User> typedQuery = entityManager.createQuery("SELECT u FROM User u", User.class);
+            var typedQuery = entityManager.createQuery("SELECT u FROM User u", User.class);
             List<User> users = typedQuery.getResultList();
             return copyUsersToDto(users);
         } catch (Exception ex) {
-            throw new EJBException(ex);
+            throw new RuntimeException(ex);
         }
     }
 
     private List<UserDto> copyUsersToDto(List<User> users) {
-        List<UserDto> userDtos = new ArrayList<>();
-        for (User user : users) {
-            UserDto userDto = new UserDto(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail()
-            );
-            userDtos.add(userDto);
-        }
-        return userDtos;
+        return users.stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail()
+                ))
+                .toList();
     }
-
     public void createUser(String username, String email, String password, Collection<String> groups) {
         LOG.info("createUser");
         User newUser = new User();
@@ -60,7 +53,6 @@ public class UsersBean {
         entityManager.persist(newUser);
         assignGroupsToUser(username, groups);
     }
-
     private void assignGroupsToUser(String username, Collection<String> groups) {
         LOG.info("assignGroupsToUser");
         for (String group : groups) {
@@ -69,5 +61,13 @@ public class UsersBean {
             userGroup.setUserGroup(group);
             entityManager.persist(userGroup);
         }
+    }
+    public Collection<String> findUsernamesByUserIds(Collection<Long> userIds) {
+        List<String> usernames =
+                entityManager.createQuery("SELECT u.username FROM User u WHERE u.id IN :userIds", String.class)
+                        .setParameter( "userIds", userIds)
+                        .getResultList();
+
+        return usernames;
     }
 }
