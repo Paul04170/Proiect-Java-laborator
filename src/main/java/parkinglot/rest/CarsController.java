@@ -6,7 +6,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import parkinglot.CarDto;
+import parkinglot.common.CarDto;
 import parkinglot.ejb.CarsBean;
 
 import java.util.List;

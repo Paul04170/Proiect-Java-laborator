@@ -1,6 +1,6 @@
 package parkinglot.ejb;
 
-import parkinglot.UserDto;
+import parkinglot.common.UserDto;
 import parkinglot.entities.User;
 import parkinglot.entities.UserGroup;
 import jakarta.ejb.EJBException;

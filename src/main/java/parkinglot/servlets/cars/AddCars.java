@@ -8,7 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import parkinglot.UserDto;
+import parkinglot.common.UserDto;
 import parkinglot.ejb.UsersBean;
 import parkinglot.ejb.CarsBean;
 

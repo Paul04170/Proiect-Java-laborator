@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import parkinglot.CarPhotoDto;
+import parkinglot.common.CarPhotoDto;
 import parkinglot.ejb.CarsBean;
 
 import java.io.IOException;

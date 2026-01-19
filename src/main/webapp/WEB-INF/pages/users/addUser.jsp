@@ -4,6 +4,7 @@
 
 <t:pageTemplate pageTitle="Add User">
 
+    <%-- Titlul se schimba in functie de cine acceseaza --%>
     <c:choose>
         <c:when test="${pageContext.request.remoteUser != null}">
             <h1>Add User (Admin)</h1>
@@ -13,34 +14,26 @@
         </c:otherwise>
     </c:choose>
 
-    <!-- FOARTE IMPORTANT: /AddUser -->
     <form method="POST" action="${pageContext.request.contextPath}/AddUser">
-
         <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-control" name="username" required>
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" required>
-        </div>
-
+            <%-- Secțiunea User Groups este ÎNTOTDEAUNA vizibilă, conform cerinței --%>
         <div class="mb-3">
             <label class="form-label">User Groups</label>
-
             <c:forEach var="userGroup" items="${userGroups}">
                 <div class="form-check">
-                    <input class="form-check-input"
-                           type="checkbox"
-                           name="user_groups"
-                           value="${userGroup}"
-                           id="${userGroup}">
+                    <input class="form-check-input" type="checkbox" name="user_groups" value="${userGroup}" id="${userGroup}">
                     <label class="form-check-label" for="${userGroup}">
                             ${userGroup}
                     </label>
